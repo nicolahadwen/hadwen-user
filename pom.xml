@@ -27,6 +27,18 @@
       <artifactId>postgresql</artifactId>
       <version>42.2.9</version>
     </dependency>
+
+    <dependency>
+      <groupId>co.hadwen</groupId>
+      <artifactId>lib-hibernate</artifactId>
+      <version>1.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.9</version>
+    </dependency>
   </dependencies>
 
 </project>
