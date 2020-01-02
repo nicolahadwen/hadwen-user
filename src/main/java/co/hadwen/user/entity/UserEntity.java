@@ -52,8 +52,8 @@ public class UserEntity implements Serializable {
 
     @Setter(AccessLevel.NONE)
     @Type(type = "org.hibernate.type.BinaryType")
-    @Column(name = "SALT", nullable = false, length = 255)
-    private byte[] salt;
+    @Column(name = "SALT", nullable = false)
+    private byte[] salt = createSalt();
 
     @Column(name = "IS_SUSPENDED")
     private boolean isSuspended;
@@ -64,22 +64,17 @@ public class UserEntity implements Serializable {
     @Column(name = "EXTERNAL_ID_TYPE")
     private String externalIdType;
 
-    @Column(name = "CREATED_AT", nullable = false)
+    @Column(name = "CREATED_AT", nullable = false, insertable= false, updatable= false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
-    @Column(name = "UPDATED_AT", nullable = false)
+    @Column(name = "UPDATED_AT", nullable = false, insertable= false, updatable= false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
-    @PrePersist
-    void prePersist() {
-        this.setSalt();
-    }
-
-    private void setSalt() {
+    private static byte[] createSalt() {
         byte[] salt = new byte[16];
         new Random().nextBytes(salt);
-        this.salt = salt;
+        return salt;
     }
 }
