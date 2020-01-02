@@ -18,15 +18,16 @@ import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
 @Data
-@Entity(optimisticLock = OptimisticLockType.ALL)
-@Table(name = "Employee", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "ID"),
+@javax.persistence.Entity
+@Entity(optimisticLock = OptimisticLockType.ALL, dynamicUpdate=true)
+@Table(name = "user", schema="hadwen", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "USER_ID"),
         @UniqueConstraint(columnNames = "EMAIL") })
 public class UserEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "USER_ID", unique = true, nullable = false, length = 36)
-    private Integer employeeId;
+    private String userId;
 
     @Column(name = "EMAIL", unique = true, nullable = false, length = 255)
     private String email;
@@ -40,24 +41,12 @@ public class UserEntity implements Serializable {
     @Column(name = "LAST_NAME", nullable = false, length = 255)
     private String lastName;
 
-    @Lob
-    @Column(name = "SALT", nullable = false, length = 255)
-    private byte[] salt;
-
     @Column(name = "IS_SUSPENDED", length = 255)
-    private boolean isSuspended;
+    private Boolean isSuspended;
 
     @Column(name = "EXTERNAL_ID", length = 255)
     private String externalId;
 
     @Column(name = "EXTERNAL_ID_TYPE", length = 255)
     private String externalIdType;
-
-    @Column(name = "CREATED_AT", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
-
-    @Column(name = "UPDATED_AT", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
 }

@@ -1,34 +1,19 @@
 package co.hadwen.user;
 
-import co.hadwen.hibernate.HibernateConfig;
-import co.hadwen.hibernate.HibernateConfigFactory;
+import co.hadwen.hibernate.HibernateContext;
 import co.hadwen.user.entity.UserEntity;
-import co.hadwen.user.exception.CreateUserException;
-import co.hadwen.user.exception.CreateUserException.Type;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.apache.commons.lang3.concurrent.ConcurrentException;
-import org.apache.commons.lang3.concurrent.LazyInitializer;
 import org.hibernate.Session;
 
+@AllArgsConstructor
 public class UserClient {
-    private final LazyInitializer<HibernateConfig> hibernateConfig;
-
-    public UserClient(HibernateConfigFactory hibernateConfigFactory) {
-        this.hibernateConfig = hibernateConfigFactory.createLazy(getClass().getClassLoader());
-    }
-
-    public UserClient() {
-        this.hibernateConfig = new HibernateConfigFactory().createLazy(getClass().getClassLoader());
-    }
+    private final HibernateContext hibernateContext;
 
     public void createUser(@NonNull UserEntity user) {
-        try {
-            Session session = hibernateConfig.get().openSession();
-            session.beginTransaction();
-            session.save(user);
-            hibernateConfig.get().shutdown();
-        } catch (ConcurrentException e) {
-            throw new CreateUserException(Type.HIBERNATE_CONFIG);
-        }
+        Session session = hibernateContext.openSession();
+        session.beginTransaction();
+        session.save(user);
+        hibernateContext.shutdown();
     }
 }
