@@ -1,6 +1,5 @@
 package co.hadwen.user;
 
-import co.hadwen.hibernate.HibernateContext;
 import co.hadwen.user.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -8,12 +7,18 @@ import org.hibernate.Session;
 
 @AllArgsConstructor
 public class UserClient {
-    private final HibernateContext hibernateContext;
-
+    private final Session session;
     public void createUser(@NonNull UserEntity user) {
-        Session session = hibernateContext.openSession();
-        session.beginTransaction();
+        createUser(user, false);
+    }
+
+    public void createUser(@NonNull UserEntity user, boolean isPartOfTransaction) {
+        if(!isPartOfTransaction) {
+            session.beginTransaction();
+        }
         session.save(user);
-        hibernateContext.shutdown();
+        if(!isPartOfTransaction) {
+            session.getTransaction().commit();
+        }
     }
 }

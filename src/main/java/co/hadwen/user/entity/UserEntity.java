@@ -1,21 +1,26 @@
 package co.hadwen.user.entity;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 import org.hibernate.annotations.Entity;
+import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.OptimisticLockType;
+import org.hibernate.annotations.Type;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Random;
 
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Lob;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
+
 
 @Data
 @javax.persistence.Entity
@@ -25,7 +30,11 @@ import javax.persistence.UniqueConstraint;
         @UniqueConstraint(columnNames = "EMAIL") })
 public class UserEntity implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "co.hadwen.hibernate.IdGenerator"
+    )
     @Column(name = "USER_ID", unique = true, nullable = false, length = 36)
     private String userId;
 
@@ -41,12 +50,36 @@ public class UserEntity implements Serializable {
     @Column(name = "LAST_NAME", nullable = false, length = 255)
     private String lastName;
 
-    @Column(name = "IS_SUSPENDED", length = 255)
-    private Boolean isSuspended;
+    @Setter(AccessLevel.NONE)
+    @Type(type = "org.hibernate.type.BinaryType")
+    @Column(name = "SALT", nullable = false, length = 255)
+    private byte[] salt;
 
-    @Column(name = "EXTERNAL_ID", length = 255)
+    @Column(name = "IS_SUSPENDED")
+    private boolean isSuspended;
+
+    @Column(name = "EXTERNAL_ID")
     private String externalId;
 
-    @Column(name = "EXTERNAL_ID_TYPE", length = 255)
+    @Column(name = "EXTERNAL_ID_TYPE")
     private String externalIdType;
+
+    @Column(name = "CREATED_AT", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    @Column(name = "UPDATED_AT", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
+
+    @PrePersist
+    void prePersist() {
+        this.setSalt();
+    }
+
+    private void setSalt() {
+        byte[] salt = new byte[16];
+        new Random().nextBytes(salt);
+        this.salt = salt;
+    }
 }
