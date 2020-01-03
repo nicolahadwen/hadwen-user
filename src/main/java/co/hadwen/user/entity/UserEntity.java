@@ -2,6 +2,8 @@ package co.hadwen.user.entity;
 
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import org.hibernate.annotations.Entity;
 import org.hibernate.annotations.GenericGenerator;
@@ -28,6 +30,27 @@ import javax.persistence.UniqueConstraint;
         @UniqueConstraint(columnNames = "USER_ID"),
         @UniqueConstraint(columnNames = "EMAIL") })
 public class UserEntity implements Serializable {
+    @Getter
+    public enum Columns {
+        USER_ID("USER_ID"),
+        EMAIL("EMAIL"),
+        PASSWORD("PASSWORD"),
+        FIRST_NAME("FIRST_NAME"),
+        LAST_NAME("LAST_NAME"),
+        SALT("SALT"),
+        IS_SUSPENDED("IS_SUSPENDED"),
+        EXTERNAL_ID("EXTERNAL_ID"),
+        EXTERNAL_ID_TYPE("EXTERNAL_ID_TYPE"),
+        CREATED_AT("CREATED_AT"),
+        UPDATED_AT("UPDATED_AT");
+
+        @Getter
+        private final String properName;
+        Columns(@NonNull String properName) {
+            this.properName = properName;
+        }
+    }
+
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(
