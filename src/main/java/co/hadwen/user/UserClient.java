@@ -23,7 +23,7 @@ public class UserClient {
     }
 
     public Optional<UserEntity> get(@NonNull String userId) {
-        return Optional.ofNullable(session.get(userId, UserEntity.class)).map(obj -> (UserEntity) obj);
+        return Optional.ofNullable(session.get(UserEntity.class, userId)).map(obj -> (UserEntity) obj);
     }
 
     public Optional<UserEntity> getByEmail(@NonNull String email) {
