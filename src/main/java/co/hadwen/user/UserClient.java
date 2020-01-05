@@ -1,8 +1,8 @@
 package co.hadwen.user;
 
 import co.hadwen.hibernate.HibernateSession;
-import co.hadwen.user.entity.UserEntity;
-import co.hadwen.user.entity.UserEntity.Columns;
+import co.hadwen.user.entity.UserAccount;
+import co.hadwen.user.entity.UserAccount.Attributes;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.hibernate.Session;
@@ -22,25 +22,25 @@ public class UserClient {
         this.session = session.getSession();
     }
 
-    public Optional<UserEntity> get(@NonNull String userId) {
-        return Optional.ofNullable(session.get(UserEntity.class, userId)).map(obj -> (UserEntity) obj);
+    public Optional<UserAccount> get(@NonNull String userId) {
+        return Optional.ofNullable(session.get(UserAccount.class, userId)).map(obj -> (UserAccount) obj);
     }
 
-    public Optional<UserEntity> getByEmail(@NonNull String email) {
+    public Optional<UserAccount> getByEmail(@NonNull String email) {
         CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery<UserEntity> query = criteriaBuilder.createQuery(UserEntity.class);
-        Root<UserEntity> root = query.from(UserEntity.class);
+        CriteriaQuery<UserAccount> query = criteriaBuilder.createQuery(UserAccount.class);
+        Root<UserAccount> root = query.from(UserAccount.class);
         query.select(root)
-                .where(criteriaBuilder.equal(root.get(Columns.EMAIL.getProperName()), email));
-        List<UserEntity> results = session.createQuery(query).list();
+                .where(criteriaBuilder.equal(root.get(Attributes.EMAIL.getProperName()), email));
+        List<UserAccount> results = session.createQuery(query).list();
         return results.size() > 0 ? Optional.of(results.get(0)) : Optional.empty();
     }
 
-    public void create(@NonNull UserEntity user) {
+    public void create(@NonNull UserAccount user) {
         create(user, false);
     }
 
-    public void create(@NonNull UserEntity user, boolean isPartOfTransaction) {
+    public void create(@NonNull UserAccount user, boolean isPartOfTransaction) {
         if(!isPartOfTransaction) {
             session.beginTransaction();
         }
@@ -51,11 +51,11 @@ public class UserClient {
         }
     }
 
-    public void update(@NonNull UserEntity user) {
+    public void update(@NonNull UserAccount user) {
         update(user, false);
     }
 
-    public void update(@NonNull UserEntity user, boolean isPartOfTransaction) {
+    public void update(@NonNull UserAccount user, boolean isPartOfTransaction) {
         if(!isPartOfTransaction) {
             session.beginTransaction();
         }

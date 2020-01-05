@@ -1,22 +1,20 @@
 package co.hadwen.user.entity;
 
-import lombok.AccessLevel;
+import co.hadwen.hibernate.Encryption;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
-import org.hibernate.annotations.Entity;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.OptimisticLockType;
-import org.hibernate.annotations.Type;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Random;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -24,29 +22,28 @@ import javax.persistence.UniqueConstraint;
 
 
 @Data
-@javax.persistence.Entity
-@Entity(optimisticLock = OptimisticLockType.ALL, dynamicUpdate=true)
-@Table(name = "user", schema="hadwen", uniqueConstraints = {
+@Entity
+@Table(name = "user_account", schema="hadwen", uniqueConstraints = {
         @UniqueConstraint(columnNames = "USER_ID"),
         @UniqueConstraint(columnNames = "EMAIL") })
-public class UserEntity implements Serializable {
+public class UserAccount implements Serializable {
     @Getter
-    public enum Columns {
-        USER_ID("USER_ID"),
-        EMAIL("EMAIL"),
-        PASSWORD("PASSWORD"),
-        FIRST_NAME("FIRST_NAME"),
-        LAST_NAME("LAST_NAME"),
-        SALT("SALT"),
-        IS_SUSPENDED("IS_SUSPENDED"),
-        EXTERNAL_ID("EXTERNAL_ID"),
-        EXTERNAL_ID_TYPE("EXTERNAL_ID_TYPE"),
-        CREATED_AT("CREATED_AT"),
-        UPDATED_AT("UPDATED_AT");
+    public enum Attributes {
+        USER_ID("userId"),
+        EMAIL("email"),
+        PASSWORD("password"),
+        FIRST_NAME("firstName"),
+        LAST_NAME("lastName"),
+        SALT("salt"),
+        IS_SUSPENDED("isSuspended"),
+        EXTERNAL_ID("externalId"),
+        EXTERNAL_ID_TYPE("externalIdType"),
+        CREATED_AT("createdAt"),
+        UPDATED_AT("updatedAt");
 
         @Getter
         private final String properName;
-        Columns(@NonNull String properName) {
+        Attributes(@NonNull String properName) {
             this.properName = properName;
         }
     }
@@ -60,22 +57,17 @@ public class UserEntity implements Serializable {
     @Column(name = "USER_ID", unique = true, nullable = false, length = 36)
     private String userId;
 
-    @Column(name = "EMAIL", unique = true, nullable = false, length = 255)
+    @Column(name = "EMAIL", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "PASSWORD", unique = true, length = 255)
+    @Column(name = "PASSWORD", unique = true, length = 300)
     private String password;
 
-    @Column(name = "FIRST_NAME", nullable = false, length = 255)
+    @Column(name = "FIRST_NAME", nullable = false)
     private String firstName;
 
-    @Column(name = "LAST_NAME", nullable = false, length = 255)
+    @Column(name = "LAST_NAME", nullable = false)
     private String lastName;
-
-    @Setter(AccessLevel.NONE)
-    @Type(type = "org.hibernate.type.BinaryType")
-    @Column(name = "SALT", nullable = false)
-    private byte[] salt = createSalt();
 
     @Column(name = "IS_SUSPENDED")
     private boolean isSuspended;
@@ -94,9 +86,12 @@ public class UserEntity implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
-    private static byte[] createSalt() {
-        byte[] salt = new byte[16];
-        new Random().nextBytes(salt);
-        return salt;
+    @PreUpdate
+    void prePersist() {
+        this.password = new Encryption().encryptPassword(password);
+    }
+
+    public boolean doesPasswordMatch(@NonNull String other) {
+        return new Encryption().verifyPassword(password, other);
     }
 }
